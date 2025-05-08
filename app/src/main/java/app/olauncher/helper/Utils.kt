@@ -109,7 +109,13 @@ suspend fun getAppsList(
                     }
                 }
             }
-            appList.sortBy { it.appLabel.lowercase() }
+            appList.sortWith { app1, app2 ->
+                when {
+                    app1.isNew!! && !app2.isNew!! -> -1  // app1 is new, put it first
+                    !app1.isNew!! && app2.isNew!! -> 1   // app2 is new, put it first
+                    else -> app1.appLabel.lowercase().compareTo(app2.appLabel.lowercase())  // fallback to alphabetical sorting
+                }
+            }
 
         } catch (e: Exception) {
             e.printStackTrace()
