@@ -89,7 +89,7 @@ suspend fun getAppsList(
                         collator.getCollationKey(app.label.toString()),
                         app.applicationInfo.packageName,
                         app.componentName.className,
-                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
+                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_WEEK_IN_MILLIS,
                         profile
                     )
 
