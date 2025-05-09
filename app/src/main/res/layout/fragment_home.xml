@@ -23,7 +23,7 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="56dp"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <TextClock
@@ -46,6 +46,16 @@
             android:paddingHorizontal="3dp"
             android:textSize="@dimen/date_size"
             tools:text="Thu, 30 Dec" />
+
+        <TextView
+            android:id="@+id/calendar"
+            style="@style/TextDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="3dp"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/date_size"
+            tools:text="Next Event" />
     </LinearLayout>
 
     <!-- Screen time-->

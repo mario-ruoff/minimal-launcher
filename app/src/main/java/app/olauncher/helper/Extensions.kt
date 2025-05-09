@@ -1,5 +1,6 @@
 package app.olauncher.helper
 
+import android.Manifest
 import android.app.Activity
 import android.app.AppOpsManager
 import android.app.SearchManager
@@ -18,6 +19,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import app.olauncher.BuildConfig
 import app.olauncher.R
 import app.olauncher.data.Constants
@@ -120,6 +122,13 @@ fun Context.isPackageInstalled(packageName: String, userHandle: UserHandle = and
     val launcher = getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     val activityInfo = launcher.getActivityList(packageName, userHandle)
     return activityInfo.size > 0
+}
+
+fun Context.calendarPermissionGranted(): Boolean {
+    return ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.READ_CALENDAR
+    ) == PackageManager.PERMISSION_GRANTED
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
