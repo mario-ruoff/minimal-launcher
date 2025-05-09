@@ -14,9 +14,12 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Point
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.UserHandle
@@ -86,7 +89,7 @@ suspend fun getAppsList(
                     val appLabelShown = prefs.getAppRenameLabel(app.applicationInfo.packageName).ifBlank { app.label.toString() }
                     val appModel = AppModel(
                         appLabelShown,
-                        app.getIcon(0),
+                        convertToGrayscale(app.getIcon(0)),
                         collator.getCollationKey(app.label.toString()),
                         app.applicationInfo.packageName,
                         app.componentName.className,
@@ -123,6 +126,15 @@ suspend fun getAppsList(
         }
         appList
     }
+}
+
+private fun convertToGrayscale(icon: Drawable): Drawable {
+    val colorMatrix = ColorMatrix()
+    colorMatrix.setSaturation(0f)
+    val grayscaleFilter = ColorMatrixColorFilter(colorMatrix)
+    val iconBW: Drawable = icon.mutate()
+    iconBW.colorFilter = grayscaleFilter
+    return iconBW
 }
 
 // This is to ensure backward compatibility with older app versions
