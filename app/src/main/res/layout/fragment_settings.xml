@@ -91,7 +91,8 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="8dp"
-                    android:text="@string/olauncher_pro" />
+                    android:text="@string/olauncher_pro"
+                    android:visibility="gone"/>
 
             </LinearLayout>
 
