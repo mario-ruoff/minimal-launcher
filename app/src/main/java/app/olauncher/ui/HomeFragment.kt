@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +33,7 @@ import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.Constants.ONE_WEEK_IN_MILLIS
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.appUsagePermissionGranted
@@ -52,8 +54,15 @@ import app.olauncher.listener.OnSwipeTouchListener
 import app.olauncher.listener.ViewSwipeTouchListener
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
+
+const val NO_EVENTS = "No upcoming events"
 
 class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
 
@@ -234,6 +243,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
         binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
         binding.dateTimeLayout.gravity = horizontalGravity
+        binding.calendar.gravity = horizontalGravity
         binding.homeApp1.gravity = horizontalGravity
         binding.homeApp2.gravity = horizontalGravity
         binding.homeApp3.gravity = horizontalGravity
@@ -261,11 +271,68 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.date.text = dateText.replace(".,", ",")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun populateCalendar() {
-        if (requireContext().calendarPermissionGranted().not()) return
+        if (!requireContext().calendarPermissionGranted()) return
 
-        binding.calendar.text = "Nice"
+        val now = System.currentTimeMillis()
+        val timeMax = now + ONE_WEEK_IN_MILLIS
 
+        val uri = CalendarContract.Events.CONTENT_URI
+        val projection = arrayOf(
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DTSTART,
+            CalendarContract.Events.DTEND,
+            CalendarContract.Events.ALL_DAY
+        )
+        val selection = """
+            ${CalendarContract.Events.DELETED}=0 AND
+            ${CalendarContract.Events.DTEND} > ? AND
+            ${CalendarContract.Events.DTSTART} <= ?
+        """.trimIndent()
+        val selectionArgs = arrayOf(now.toString(), timeMax.toString())
+        val sortOrder = "${CalendarContract.Events.DTSTART} ASC LIMIT 3"
+
+        val cursor = requireContext().contentResolver
+            .query(uri, projection, selection, selectionArgs, sortOrder)
+
+        cursor?.use {
+            val zone = ZoneId.systemDefault()
+            val today = LocalDate.now(zone)
+            val tomorrow = today.plusDays(1)
+            val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+            val events = buildList {
+                while (it.moveToNext()) {
+                    val title = it.getString(it.getColumnIndexOrThrow(CalendarContract.Events.TITLE))
+                    val start = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))
+                    val end   = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Events.DTEND))
+                    val allDay = it.getInt(it.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) == 1
+
+                    val date = Instant.ofEpochMilli(start).atZone(zone).toLocalDate()
+                    val label = when (date) {
+                        today    -> "Today"
+                        tomorrow -> "Tomorrow"
+                        else     -> date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    }
+
+                    val spanDays = Duration.ofMillis(end - start).toDays()
+                    val timePart = if (allDay || spanDays >= 1)
+                        ""
+                    else
+                        " • ${timeFmt.format(Date(start))}"
+
+                    add("$title • $label$timePart")
+                }
+            }
+
+            binding.calendar.text = if (events.isNotEmpty())
+                events.joinToString("\n\n")
+            else
+                NO_EVENTS
+        } ?: run {
+            binding.calendar.text = NO_EVENTS
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -298,7 +365,9 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     private fun populateHomeScreen(appCountUpdated: Boolean) {
         if (appCountUpdated) hideHomeApps()
         populateDateTime()
-        populateCalendar()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            populateCalendar()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
             populateScreenTime()

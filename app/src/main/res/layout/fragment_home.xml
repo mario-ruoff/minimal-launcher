@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="3dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="18dp"
             android:textSize="@dimen/date_size"
             tools:text="Next Event" />
     </LinearLayout>
