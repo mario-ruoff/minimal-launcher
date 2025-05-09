@@ -86,11 +86,12 @@ suspend fun getAppsList(
                     val appLabelShown = prefs.getAppRenameLabel(app.applicationInfo.packageName).ifBlank { app.label.toString() }
                     val appModel = AppModel(
                         appLabelShown,
+                        app.getIcon(0),
                         collator.getCollationKey(app.label.toString()),
                         app.applicationInfo.packageName,
                         app.componentName.className,
                         (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_WEEK_IN_MILLIS,
-                        profile
+                        profile,
                     )
 
                     // if the current app is not OLauncher

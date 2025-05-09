@@ -382,6 +382,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             AppModel(
                 appName,
                 null,
+                null,
                 packageName,
                 activityClassName,
                 false,

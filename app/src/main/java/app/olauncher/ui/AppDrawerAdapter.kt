@@ -130,7 +130,7 @@ class AppDrawerAdapter(
 
     fun setAppList(appsList: MutableList<AppModel>) {
         // Add empty app for bottom padding in recyclerview
-        appsList.add(AppModel("", null, "", "", false, android.os.Process.myUserHandle()))
+        appsList.add(AppModel("", null, null, "", "", false, android.os.Process.myUserHandle()))
         this.appsList = appsList
         this.appFilteredList = appsList
         submitList(appsList)
@@ -158,9 +158,10 @@ class AppDrawerAdapter(
                 appHideLayout.visibility = View.GONE
                 renameLayout.visibility = View.GONE
                 appTitle.visibility = View.VISIBLE
-                appTitle.text = if (appModel.isNew == true) "✦ ${appModel.appLabel}" else appModel.appLabel
+                appTitle.text = if (appModel.isNew == true) "${appModel.appLabel} ✦" else appModel.appLabel
                 appTitle.gravity = appLabelGravity
                 otherProfileIndicator.isVisible = appModel.user != myUserHandle
+                appIcon.setImageDrawable(appModel.icon)
 
                 appTitle.setOnClickListener { clickListener(appModel) }
                 appTitle.setOnLongClickListener {

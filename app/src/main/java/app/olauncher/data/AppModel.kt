@@ -1,10 +1,12 @@
 package app.olauncher.data
 
+import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import java.text.CollationKey
 
 data class AppModel(
     val appLabel: String,
+    val icon: Drawable?,
     val key: CollationKey?,
     val appPackage: String,
     val activityClassName: String?,
