@@ -1,7 +1,7 @@
 <p align="center">
   <img alt="Logo" src="/assets/icon.png" width="128" />
   <h1 align="center">Minimal Launcher</h1>
-</p>https://github.com/mario-ruoff/minimal-launcher/blob/master/README.md
+</p>
 
 <p align="center">
   <a href="https://opensource.org/licenses/MIT" alt="License">
